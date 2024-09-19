@@ -1,37 +1,41 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { GlobalContext } from './GlobalContext/GlobalContext';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Navbar from './NavBar/NavBar';
-import { useNavigate } from 'react-router-dom';
 
 function Basket() {
     const { cart, removeFromCart } = useContext(GlobalContext);
 
-    const [quantity, setQuantity] = useState(1)
+    // Initialize quantity state
+    const [quantity, setQuantity] = useState({});
+
+    // Initialize quantity for each product in cart
+    useEffect(() => {
+        const initialQuantity = {};
+        cart.forEach(product => {
+            initialQuantity[product.id] = 1;  // Set initial quantity to 1
+        });
+        setQuantity(initialQuantity);
+    }, [cart]);
 
     const calculateTotalPrice = (price, id) => {
-        const productId = cart.find((item) => item.id === id)
-
-        if (productId) {
-            return price * quantity;
-        }
+        const productQuantity = quantity[id] || 1;
+        return price * productQuantity;
     }
 
     const handleDecrement = (id) => {
-        const buttonId = cart.find((itemId) => itemId === id)
-
-        if (quantity > 1) {
-            setQuantity(quantity => quantity - 1)
-        }
+        setQuantity(prevCount => ({
+            ...prevCount,
+            [id]: Math.max((prevCount[id] || 1) - 1, 1)
+        }));
     }
 
     const handleIncrement = (id) => {
-        const buttonId = cart.find((itemId) => itemId === id)
-        
-        if (quantity < 10) {
-            setQuantity(quantity => quantity + 1)
-        }
+        setQuantity(prevCount => ({
+            ...prevCount,
+            [id]: (prevCount[id] || 1) + 1
+        }));
     }
 
     return (
@@ -59,7 +63,7 @@ function Basket() {
 
                                         <div className='d-flex justify-content-around align-items-center' style={{ border: '1px solid', width: '100px', borderRadius: '5px', padding: '4px', fontSize: '18px' }}>
                                             <span onClick={() => handleDecrement(product.id)}>-</span>
-                                            <span>{quantity}</span>
+                                            <span>{quantity[product.id]}</span>
                                             <span onClick={() => handleIncrement(product.id)}>+</span>
                                         </div>
                                     </div>
@@ -72,9 +76,8 @@ function Basket() {
                         ))}
                     </div>
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 }
 
