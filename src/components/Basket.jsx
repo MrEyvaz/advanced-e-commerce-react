@@ -7,14 +7,12 @@ import Navbar from './NavBar/NavBar';
 function Basket() {
     const { cart, removeFromCart } = useContext(GlobalContext);
 
-    // Initialize quantity state
     const [quantity, setQuantity] = useState({});
 
-    // Initialize quantity for each product in cart
     useEffect(() => {
         const initialQuantity = {};
         cart.forEach(product => {
-            initialQuantity[product.id] = 1;  // Set initial quantity to 1
+            initialQuantity[product.id] = 1;
         });
         setQuantity(initialQuantity);
     }, [cart]);
